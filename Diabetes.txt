@@ -1,0 +1,108 @@
+# Import necessary libraries
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.metrics import accuracy_score
+
+# Load the diabetes dataset
+dataset = pd.read_csv('diabetes.csv') 
+
+# Display the first few rows of the dataset
+dataset.head()
+
+# Check the shape (number of rows and columns) of the dataset
+dataset.shape
+
+# Get a statistical summary of the dataset
+dataset.describe()
+
+# Count the occurrences of each class in the 'Outcome' column
+dataset['Outcome'].value_counts()
+
+# Group the dataset by 'Outcome' and calculate the mean of each group
+dataset.groupby('Outcome').mean()
+
+# Separate features (X) and target labels (Y)
+X = dataset.drop(columns='Outcome', axis=1)  # Features (all columns except 'Outcome')
+Y = dataset['Outcome']  # Target labels (the 'Outcome' column)
+
+# Print the feature set and target labels
+print(X)
+print(Y)
+
+# Split the dataset into training and testing sets (80% train, 20% test)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, stratify=Y, random_state=2)
+
+# Print the shape of the original feature set and the training/testing sets
+print(X.shape, X_train.shape, X_test.shape)
+
+# Create a Support Vector Machine (SVM) classifier with a linear kernel
+classifier = svm.SVC(kernel='linear')
+
+# Train the classifier on the training data
+classifier.fit(X_train, Y_train)
+
+# Make predictions on the training set
+X_train_prediction = classifier.predict(X_train)
+
+# Calculate the accuracy of the model on the training data
+training_data_accuracy = accuracy_score(X_train_prediction, Y_train)
+print('Accuracy score of the training data : ', training_data_accuracy)
+
+# Make predictions on the testing set
+X_test_prediction = classifier.predict(X_test)
+
+# Calculate the accuracy of the model on the testing data
+test_data_accuracy = accuracy_score(X_test_prediction, Y_test)
+print('Accuracy score of the test data : ', test_data_accuracy)
+
+# Input data for prediction (example values)
+input_data = (5, 166, 72, 19, 175, 25.8, 0.587, 51)
+
+# Convert the input data to a numpy array
+input_data_as_numpy_array = np.asarray(input_data)
+
+# Reshape the array to match the input shape expected by the model (1 instance)
+input_data_reshaped = input_data_as_numpy_array.reshape(1, -1)
+
+# Make a prediction using the trained classifier
+prediction = classifier.predict(input_data_reshaped)
+print(prediction)
+
+# Interpret the prediction result
+if (prediction[0] == 0):
+    print('The person is not diabetic')
+else:
+    print('The person is diabetic')
+
+# Save the trained model to a file using pickle
+import pickle
+filename = 'diabetes_model.sav'
+pickle.dump(classifier, open(filename, 'wb'))
+
+# Load the saved model from the file
+loaded_model = pickle.load(open('diabetes_model.sav', 'rb'))
+
+# Make a prediction again using the loaded model
+input_data = (5, 166, 72, 19, 175, 25.8, 0.587, 51)
+
+# Convert the input data to a numpy array
+input_data_as_numpy_array = np.asarray(input_data)
+
+# Reshape the array for prediction
+input_data_reshaped = input_data_as_numpy_array.reshape(1, -1)
+
+# Make a prediction using the loaded model
+prediction = loaded_model.predict(input_data_reshaped)
+print(prediction)
+
+# Interpret the prediction result
+if (prediction[0] == 0):
+    print('The person is not diabetic')
+else:
+    print('The person is diabetic')
+
+# Print the names of the features used in the model
+for column in X.columns:
+    print(column)
